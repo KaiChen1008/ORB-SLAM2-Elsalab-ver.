@@ -25,12 +25,12 @@ $ monosub
 
 - When terminating the ORB_SLAM2, the map will be saved as file.bin  automatically under $HOME
 
-- - It may take a few minutes, Do Not close the terminal
+  - It may take a few minutes, Do Not close the terminal
   - Remember to change file name if necessary 
 
 - When restarting the ORB_SLAM2, it will read the map at the beginning
 
-- - Make sure that file.bin is under $HOME
+  - Make sure that file.bin is under $HOME
   - The pointer of the terminal is also at $HOME
   - Cancel the Localization mode so that it can add new keyframes and publish the camera pose
 
