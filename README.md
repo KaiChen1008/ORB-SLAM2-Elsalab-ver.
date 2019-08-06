@@ -1,12 +1,8 @@
 # ORB_SLAM2
 
-[TOC]
-
-
-
 **Authors:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
 
-#License
+# License
 
 ORB-SLAM2 is released under a [GPLv3 license](https://github.com/raulmur/ORB_SLAM2/blob/master/License-gpl.txt). For a list of all code/library dependencies (and associated licenses), please see [Dependencies.md](https://github.com/raulmur/ORB_SLAM2/blob/master/Dependencies.md).
 
@@ -74,7 +70,7 @@ $ python pointCloudToGridMap2D.py --help
 
 
 
-## Screen recording
+## Screen Recording
 
 ```
 kazam
@@ -86,8 +82,15 @@ ffmpeg -i 原檔名.mp4 -f mp4 -vcodec libx264 -preset fast -profile:v main -pix
 
 
 
-## See topic 
+## See Topic 
 
 ```
 $ rosrun rqt_graph rqt_graph
+```
+
+
+## Reference
+```
+https://github.com/abhineet123/ORB_SLAM2 # grid map ver.
+https://github.com/Alkaid-Benetnash/ORB_SLAM2 # save map ver.
 ```
