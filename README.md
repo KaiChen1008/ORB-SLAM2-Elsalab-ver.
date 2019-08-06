@@ -10,7 +10,6 @@ ORB-SLAM2 is released under a [GPLv3 license](https://github.com/raulmur/ORB_SLA
 
 # Execution
 
-- commands is in Note.txt
 - open 4 terminals
 
 ```
