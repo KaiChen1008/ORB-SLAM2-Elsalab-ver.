@@ -1,11 +1,11 @@
+#!/usr/bin/env python
 import rospy
 import roslib
-import tf
 import keyboard  # using module keyboard
 from time import sleep
-# import geometry_msgs.msg
 from geometry_msgs.msg import PoseWithCovarianceStamped
 
+print('hi')
 STEP_DISTANCE = 1.0
 x = 0.0
 y = 0.0
@@ -38,6 +38,7 @@ def create_pose(dx,dy,dz):
 def fake_amcl_pose_publish():
     rospy.init_node('fake_amcl_pose')
     pub = rospy.Publisher('amcl_pose', PoseWithCovarianceStamped, queue_size=100)
+    print('ros node started')
     while True:
         try:
             if keyboard.is_pressed('up'):
@@ -67,6 +68,7 @@ def fake_amcl_pose_publish():
 
 if __name__ == '__main__':
     try:
+        print('start fake amcl pose publisher')
         fake_amcl_pose_publish()
 
     except rospy.ROSInterruptException:
