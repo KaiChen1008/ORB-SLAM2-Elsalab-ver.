@@ -43,7 +43,7 @@ def fake_cmd_vel_publish():
                 pose = create_twist(0, 0, 1)
                 pub.publish(pose)
                 sleep(0.1)
-            elif keyboard.is_pressed('esc'):
+            elif g == 'q':
                 print('finished')
                 break
         except:
