@@ -359,7 +359,7 @@ yamle sample:
 """
 print('saving yaml file........')
 
-with open(output_file_name+".yaml", 'w') as _o:
+with open(out_fname+".yaml", 'w') as _o:
     _o.write('image: '          + str(output_file_name)          + '.pgm\n')
     _o.write('resolution: '     + str(1/scale_factor)            + '\n')
     _o.write('origin: ['        + str(grid_min_x/scale_factor)  + ', ' 
