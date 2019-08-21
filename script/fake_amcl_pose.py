@@ -3,7 +3,7 @@ import rospy
 import roslib
 import keyboard  # using module keyboard
 from time import sleep
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, Quaternion
 
 print('hi')
 STEP_DISTANCE = 1.0

@@ -71,7 +71,7 @@ parser.add_argument('--filter',                 dest='filter_ground_points',    
 parser.add_argument('--counter',                dest='load_counters',               default=0, type=int,                    help='load_counters')
 parser.add_argument('--free_thresh',            dest='free_thresh',                 default=0.55, type=float,               help='free_thresh')
 parser.add_argument('--occupied_thresh',        dest='occupied_thresh',             default=0.50, type=float,               help='occupied_thresh')
-parser.add_argument('--output_file_name',       dest='output_file_name',            default=None,                           help='output_file_name')
+parser.add_argument('--output',                 dest='output_file_name',            default=None,                           help='output_file_name')
 args = parser.parse_args()
 
 # seq_name = 'kitti_00'
