@@ -29,7 +29,7 @@ class pose_converter():
         self.pub.publish(poseWithStamped)
 
     def convert(self, q):
-        (roll, pitch, yaw) = euler_from_quaternion(q[0], q[1], q[2], q[3])
+        (roll, pitch, yaw) = euler_from_quaternion(q)
 
         yaw += 1.57
 

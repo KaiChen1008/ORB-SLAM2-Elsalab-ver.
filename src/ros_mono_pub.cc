@@ -284,9 +284,9 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 
 		Trw = Trw*pKF->GetPose()*Two;
 		cv::Mat lit = SLAM.getTracker()->mlRelativeFramePoses.back();
-		cv::Mat Tcw = lit*Trw;
+		cv::Mat Tcw = lit * Trw;
 		cv::Mat Rwc = Tcw.rowRange(0, 3).colRange(0, 3).t();
-		cv::Mat twc = -Rwc*Tcw.rowRange(0, 3).col(3);
+		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
 		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
 		//geometry_msgs::Pose camera_pose;
@@ -355,14 +355,14 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 		pose_with_c_and_s.header = pt_array.header;
 		// pose_with_c_and_s.pose.pose = camera_pose;
 		// convert orb-slam coordination to Rviz coordination
-		pose_with_c_and_s.pose.pose.position.y = (camera_pose.position.z );
-		pose_with_c_and_s.pose.pose.position.x = ( camera_pose.position.x);
+		pose_with_c_and_s.pose.pose.position.y = camera_pose.position.z;
+		pose_with_c_and_s.pose.pose.position.x = camera_pose.position.x;
 		pose_with_c_and_s.pose.pose.position.z = 0;//- camera_pose.position.y;
 
 
 		pose_with_c_and_s.pose.pose.orientation.y = camera_pose.orientation.z;
-		pose_with_c_and_s.pose.pose.orientation.x = - camera_pose.orientation.x;
-		pose_with_c_and_s.pose.pose.orientation.z = - camera_pose.orientation.y;
+		pose_with_c_and_s.pose.pose.orientation.x = camera_pose.orientation.x;
+		pose_with_c_and_s.pose.pose.orientation.z = camera_pose.orientation.y;
 		pose_with_c_and_s.pose.pose.orientation.w = camera_pose.orientation.w;
 
 
@@ -458,7 +458,7 @@ bool parseParams(int argc, char **argv) {
 				image_topic = std::string(argv[4]); //argv[4] is topic name
 			}
 			printf("Reading images from topic %s\n", image_topic.c_str());
-		}
+
 	}
 	else { // from disk
 		LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
