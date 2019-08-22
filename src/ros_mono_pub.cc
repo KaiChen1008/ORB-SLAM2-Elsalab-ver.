@@ -466,7 +466,7 @@ bool parseParams(int argc, char **argv) {
 
 
 	if (argc >= 5) {
-		all_pts_pub_gap = atoi(argv[4]);
+		all_pts_pub_gap = atoi(argv[4]); // ???????????
 	}
 	printf("all_pts_pub_gap: %d\n", all_pts_pub_gap); // 0 ?????????????
 	return 1;

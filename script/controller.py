@@ -4,12 +4,13 @@ import roslib
 from time import sleep
 from geometry_msgs.msg import PoseWithCovarianceStamped, Quaternion, Twist
 from std_msgs.msg import Bool
+from communication import sender
 
-class pose_converter():
+class controller():
     def __init__(self):
         rospy.init_node('controller')
-        self.pub = rospy.Publisher('husky_vel_controller', Twist, queue_size=100)
         self.goal = False
+        self.sendman = sender()
 
         print('node started')
 
@@ -19,38 +20,54 @@ class pose_converter():
 
     def callback(self, t):
         print('receive t...')
-        self.pub.publish(t)
+        if (self.goal is False):
+            j = self.msgs2json(t)
+            self.sendman.send(j)
 
     def is_goal(self, data):
-        if data == True:
-            t = self.create_zero_twist()
-            self.pub.publish(t)
+        if data.data == True:
+            j = self.create_zero_twist()
+            self.sendman.send(j)
+            self.goal = True
             print('achieve')
-            ans = input("if next goal:")
+
+            # continue
+            ans = raw_input("if next goal exists:")
             if ans == 'y' or ans =='yes' or ans == 'Y':
                 self.goal = False
             else:
                 exit(0)
     
     def create_zero_twist(self):
-        t = Twist()
-        t.linear.x = 0.0
-        t.linear.y = 0.0
-        t.linear.z = 0.0
+        j = {
+            'linear_x' : 0.0,
+            'linear_y' : 0.0,
+            'linear_z' : 0.0,
+            'angular_x': 0.0,
+            'angular_y': 0.0,
+            'angular_z': 0.0,
+        }
 
-        t.angular.x = 0.0
-        t.angular.y = 0.0
-        t.angular.z = 0.0
-
-        return t
+        return j
+    
+    def msgs2json(self, t):
+        j = {
+            'linear_x' : t.linear.x,
+            'linear_y' : t.linear.y,
+            'linear_z' : t.linear.z,
+            'angular_x': t.angular.x,
+            'angular_y': t.angular.y,
+            'angular_z': t.achieve.z
+        }
+        return j
 
 
 
 
 if __name__ == '__main__':
     try:
-        print('starting pose converter....')
-        p = pose_converter()
+        print('starting controll husky....')
+        c = controller()
 
     except rospy.ROSInterruptException:
         print('ROS error')
