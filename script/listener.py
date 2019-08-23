@@ -18,6 +18,6 @@ class listener:
 
 if __name__ == '__main__':
     server = listener()
-    server.app.run('localhost', 3001)
+    server.app.run('192.168.50.2', 3001)
 
 

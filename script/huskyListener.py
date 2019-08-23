@@ -8,7 +8,7 @@ class husListener():
     app = Klein()
 
     def __init__(self):
-        rospy.init_node('hus_hus!!')
+        rospy.init_node('hushus')
         self.pub = rospy.Publisher('husky_velocity_controller', Twist, queue_size=1)
 
     @app.route('/', methods=['POST'])

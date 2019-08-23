@@ -6,9 +6,9 @@ from datetime import datetime
 
 
 class sender():
-    def __init__(self, port=3001):
+    def __init__(self, port=3002):
 
-        self.url = "http://localhost:3001"
+        self.url = "http://192.168.50.2:3001"
         self.headers = {
             'Content-type': 'application/json', 'Accept': 'text/plain'}
 

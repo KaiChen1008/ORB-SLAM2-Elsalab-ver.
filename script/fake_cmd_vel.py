@@ -2,6 +2,7 @@
 import rospy
 import roslib
 from geometry_msgs.msg import Twist, Vector3
+from time import sleep
 
 def create_twist(x, y, z):
     pub_twist = Twist()
@@ -14,16 +15,15 @@ def create_twist(x, y, z):
     pub_twist.angular.y= y
     pub_twist.angular.z= z
 
-
     return pub_twist
-
 
 def fake_cmd_vel_publish():
     rospy.init_node('fake_cmd_vel')
-    pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
+    pub = rospy.Publisher('fake_cmd_vel', Twist, queue_size=100)
     print('ros node started')
     while True:
-        g = input('anular: ')
+        g = raw_input('anular: ')
+        print(str(g))
         try:
             if g == 'w':
                 pose = create_twist(0, 0, 0)
@@ -35,12 +35,12 @@ def fake_cmd_vel_publish():
                 sleep(0.1)
             elif g == 'd':
                 print('right')
-                pose = create_twist(0, 0, -1)
+                pose = create_twist(0, 0, -0.1)
                 pub.publish(pose)
                 sleep(0.1)
             elif g == 'a':
                 print('left')
-                pose = create_twist(0, 0, 1)
+                pose = create_twist(0, 0, 0.1)
                 pub.publish(pose)
                 sleep(0.1)
             elif g == 'q':
@@ -48,7 +48,7 @@ def fake_cmd_vel_publish():
                 break
         except:
             print('keyboard error')
-            break
+            continue
 
 
 

@@ -8,7 +8,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 class pose_converter():
     def __init__(self):
         rospy.init_node('pose_converter')
-        self.pub = rospy.Publisher('slam_pose', PoseWithCovarianceStamped, queue_size=100)
+        self.pub = rospy.Publisher('slam_pose', PoseWithCovarianceStamped, queue_size=1)
         print('node started')
 
         rospy.Subscriber("amcl_pose", PoseWithCovarianceStamped, self.callback)
@@ -21,10 +21,10 @@ class pose_converter():
         q = [orientation.x, orientation.y, orientation.z, orientation.w]
         qx= self.convert(q)
 
-        poseWithStamped.pose.pose.orientation.x = qx.x
-        poseWithStamped.pose.pose.orientation.y = qx.y
-        poseWithStamped.pose.pose.orientation.z = qx.z
-        poseWithStamped.pose.pose.orientation.w = qx.w
+        poseWithStamped.pose.pose.orientation.x = qx[0]
+        poseWithStamped.pose.pose.orientation.y = qx[1]
+        poseWithStamped.pose.pose.orientation.z = qx[2]
+        poseWithStamped.pose.pose.orientation.w = qx[3]
 
         self.pub.publish(poseWithStamped)
 

@@ -365,8 +365,8 @@ with open(out_fname+".yaml", 'w') as _o:
     _o.write('origin: ['        + str(grid_min_x/scale_factor)  + ', ' 
                                 + str(grid_min_z/scale_factor)  + ', '
                                 + '0.0]\n' )
-    _o.write('occupied_thresh: ' + str(occupied_thresh)           + '\n')
-    _o.write('free_thresh: '    + str(free_thresh)               + '\n')
+    _o.write('occupied_thresh: '+ '0.55'           + '\n')
+    _o.write('free_thresh: '    + '0.15'               + '\n')
     _o.write('negate: 0\n')
 
 
