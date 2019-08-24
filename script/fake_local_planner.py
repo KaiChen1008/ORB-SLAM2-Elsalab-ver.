@@ -14,7 +14,7 @@ pose_y = 0.0
 theta  = 0.0
 REST_PATH_POINT_TO_END = 5
 REST_PATH_POINT = 10
-THRESHOLD = 1
+THRESHOLD = 0.15
 LEFT    = 1
 RIGHT   =-1
 STRAIGHT= 0
@@ -35,8 +35,8 @@ def path_callback(msg):
     global path_goal_x
     global path_goal_y
     global REST_PATH_POINT
-    path_goal_y = msg.poses[0].pose.position.y
-    path_goal_x = msg.poses[0].pose.position.x
+    path_goal_y = msg.poses[4].pose.position.y
+    path_goal_x = msg.poses[4].pose.position.x
     REST_PATH_POINT = len(msg.poses)
     print('rest path point = ' + str(REST_PATH_POINT))
 
@@ -68,7 +68,7 @@ def create_goal():
 def fake_local_planner_publisher():
     rospy.init_node("fake_local_planner")
     path_sub = rospy.Subscriber("/move_base/NavfnROS/plan", Path, path_callback)
-    pose_sub = rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, pose_callback)
+    pose_sub = rospy.Subscriber("/slam_pose", PoseWithCovarianceStamped, pose_callback)
     twist_pub = rospy.Publisher("/fake_cmd_vel", Twist, queue_size = 1)
     goal_pub  = rospy.Publisher("/if_goal", Bool, queue_size=10)
 
