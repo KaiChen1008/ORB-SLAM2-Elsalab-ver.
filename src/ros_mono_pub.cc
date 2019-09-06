@@ -57,28 +57,19 @@ cv::VideoCapture cap_obj;
 
 bool pub_all_pts = false;
 int pub_count = 0;
+int publish_counter = 0;
 
-void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
-	vector<double> &vTimestamps);
+void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames, vector<double> &vTimestamps);
 inline bool isInteger(const std::string & s);
-//modified
-void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
-										ros::Publisher &pub_all_kf_and_pts, 
-										ros::Publisher &pub_pose, 
-										int frame_id);
-
+void publish(ORB_SLAM2::System &SLAM, ros::Publisher &pub_pts_and_pose, ros::Publisher &pub_all_kf_and_pts,  ros::Publisher &pub_pose,  int frame_id);
+bool parseParams(int argc, char **argv);
 
 //modified
 class ImageGrabber{
 public:
-	ImageGrabber(ORB_SLAM2::System &_SLAM, 	ros::Publisher &_pub_pts_and_pose,
-											ros::Publisher &_pub_all_kf_and_pts, 
-											ros::Publisher &_pub_pose) :
-		SLAM(_SLAM), 
-		pub_pts_and_pose	(_pub_pts_and_pose),
-		pub_all_kf_and_pts	(_pub_all_kf_and_pts), 
-		pub_pose			(_pub_pose), 
-		frame_id			(0){}
+	ImageGrabber(ORB_SLAM2::System &_SLAM, ros::Publisher &_pub_pts_and_pose, ros::Publisher &_pub_all_kf_and_pts,  ros::Publisher &_pub_pose) :
+		SLAM(_SLAM), pub_pts_and_pose(_pub_pts_and_pose), pub_all_kf_and_pts(_pub_all_kf_and_pts), 
+		pub_pose(_pub_pose), frame_id(0){}
 
 	void GrabImage(const sensor_msgs::ImageConstPtr& msg);
 
@@ -88,7 +79,7 @@ public:
 	ros::Publisher &pub_pose;
 	int frame_id;
 };
-bool parseParams(int argc, char **argv);
+
 
 using namespace std;
 
@@ -98,69 +89,23 @@ int main(int argc, char **argv){
 	if (!parseParams(argc, argv)) {
 		return EXIT_FAILURE;
 	}
-	int n_images = vstrImageFilenames.size();
+	// int n_images = vstrImageFilenames.size();
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
 	ORB_SLAM2::System SLAM(argv[1], argv[2], ORB_SLAM2::System::MONOCULAR, true, true);
 	ros::NodeHandle nodeHandler;
-	//ros::Publisher pub_cloud 			= nodeHandler.advertise<sensor_msgs::PointCloud2>("cloud_in", 1000);
-	ros::Publisher pub_pts_and_pose 	= nodeHandler.advertise<geometry_msgs::PoseArray>("pts_and_pose", 1000);
-	ros::Publisher pub_all_kf_and_pts 	= nodeHandler.advertise<geometry_msgs::PoseArray>("all_kf_and_pts", 1000);
+	ros::Publisher 	pub_pts_and_pose 	= nodeHandler.advertise<geometry_msgs::PoseArray>("pts_and_pose", 1000);
+	ros::Publisher 	pub_all_kf_and_pts 	= nodeHandler.advertise<geometry_msgs::PoseArray>("all_kf_and_pts", 1000);
+	ros::Publisher 	pub_pose			= nodeHandler.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 100);
 
-	// publish tf2_msgs/TFMessage
-	// publish geometry_msgs/PoseWithCovarianceStamped
-	// modified 
-	// ros::Publisher pub_tf 	= nodeHandler.advertise<tf2_msgs::TFMessage>("tf", 1000);
-	ros::Publisher pub_pose	= nodeHandler.advertise<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 100);
-
-
-	if (read_from_topic) {
+	if (read_from_topic) 
+	{
 		ImageGrabber igb(SLAM, pub_pts_and_pose, pub_all_kf_and_pts, pub_pose);
 		ros::Subscriber sub = nodeHandler.subscribe(image_topic, 1, &ImageGrabber::GrabImage, &igb);
 		ros::spin();
 	}
 	else{
-		ros::Rate loop_rate(5);
-		cv::Mat im;
-		double tframe = 0;
-#ifdef COMPILEDWITHC11
-		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-#else
-		std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-#endif
-		for (int frame_id = 0; read_from_camera || frame_id < n_images; ++frame_id){
-			if (read_from_camera) {
-				cap_obj.read(im);
-#ifdef COMPILEDWITHC11
-				std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-#else
-				std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-#endif
-				tframe = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();
-				//printf("fps: %f\n", 1.0 / tframe);
-			}
-			else {
-				// Read image from file
-				im = cv::imread(vstrImageFilenames[frame_id], CV_LOAD_IMAGE_UNCHANGED);
-				tframe = vTimestamps[frame_id];
-			}
-			if (im.empty()){
-				cerr << endl << "Failed to load image at: " << vstrImageFilenames[frame_id] << endl;
-				return 1;
-			}
-			// Pass the image to the SLAM system
-			cv::Mat curr_pose = SLAM.TrackMonocular(im, tframe);
-
-			publish(SLAM, pub_pts_and_pose, pub_all_kf_and_pts, pub_pose, frame_id);
-
-			//cv::imshow("Press escape to exit", im);
-			//if (cv::waitKey(1) == 27) {
-			//	break;
-			//}
-			ros::spinOnce();
-			loop_rate.sleep();
-			if (!ros::ok()){ break; }
-		}
+		printf("Topic does not exist");
 	}
 	//ros::spin();
 
@@ -170,26 +115,22 @@ int main(int argc, char **argv){
 	// Save camera trajectory
 	SLAM.SaveKeyFrameTrajectoryTUM("results//key_frame_trajectory.txt");
 
-
 	// Stop all threads
 	SLAM.Shutdown();
-	//geometry_msgs::PoseArray pt_array;
-	//pt_array.header.seq = 0;
-	//pub_pts_and_pose.publish(pt_array);
 	ros::shutdown();
 	return 0;
 }
 
-void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
-										ros::Publisher &pub_all_kf_and_pts, 
-										ros::Publisher &pub_pose,				
-										int frame_id) {
-	// ???????????
-	// all_pts_pub_gap = 0 ????? pub_count = 0 initially
+void publish(ORB_SLAM2::System &SLAM, ros::Publisher &pub_pts_and_pose, ros::Publisher &pub_all_kf_and_pts, ros::Publisher &pub_pose, int frame_id) {
+	// all_pts_pub_gap = 0
 	if (all_pts_pub_gap > 0 && pub_count >= all_pts_pub_gap) {
 		pub_all_pts = true;
 		pub_count = 0;
 	}
+	cout << "is_keyframe                     : " << SLAM.getTracker()->mCurrentFrame.is_keyframe << endl;
+	cout << "getLoopClosing()->loop_detected : " << SLAM.getLoopClosing()->loop_detected << endl;
+	cout << "SLAM.getTracker()->loop_detected: " << SLAM.getTracker()->loop_detected << endl;
+	
 	if (pub_all_pts || 	SLAM.getLoopClosing()->loop_detected || 
 						SLAM.getTracker()->loop_detected) {
 							
@@ -255,25 +196,19 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 		kf_pt_array.poses[0] = n_kf_msg;
 		kf_pt_array.header.frame_id = "1";
 		kf_pt_array.header.seq = frame_id + 1;
+
 		printf("Publishing data for %u keyfranmes\n", n_kf);
 		pub_all_kf_and_pts.publish(kf_pt_array);
-
 		// need publish camera_pose
-
 	}
 	else if (SLAM.getTracker()->mCurrentFrame.is_keyframe) {
+		cout << "in else if" << endl;
 		++pub_count;
 		SLAM.getTracker()->mCurrentFrame.is_keyframe = false;
 		ORB_SLAM2::KeyFrame* pKF = SLAM.getTracker()->mCurrentFrame.mpReferenceKF;
 
 		cv::Mat Trw = cv::Mat::eye(4, 4, CV_32F);
 
-		// If the reference keyframe was culled, traverse the spanning tree to get a suitable keyframe.
-		//while (pKF->isBad())
-		//{
-		//	Trw = Trw*pKF->mTcp;
-		//	pKF = pKF->GetParent();
-		//}
 
 		vector<ORB_SLAM2::KeyFrame*> vpKFs = SLAM.getMap()->GetAllKeyFrames();
 		sort(vpKFs.begin(), vpKFs.end(), ORB_SLAM2::KeyFrame::lId);
@@ -289,18 +224,11 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 		cv::Mat twc = -Rwc * Tcw.rowRange(0, 3).col(3);
 
 		vector<float> q = ORB_SLAM2::Converter::toQuaternion(Rwc);
-		//geometry_msgs::Pose camera_pose;
-		//std::vector<ORB_SLAM2::MapPoint*> map_points = SLAM.getMap()->GetAllMapPoints();
+		
 		std::vector<ORB_SLAM2::MapPoint*> map_points = SLAM.GetTrackedMapPoints();
 		int n_map_pts = map_points.size();
 
-		//printf("n_map_pts: %d\n", n_map_pts);
-
-		//pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-
 		geometry_msgs::PoseArray pt_array;
-		//pt_array.poses.resize(n_map_pts + 1);
-
 		geometry_msgs::Pose camera_pose;
 
 		camera_pose.position.x = twc.at<float>(0);
@@ -314,10 +242,7 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 
 		pt_array.poses.push_back(camera_pose);
 
-		//printf("Done getting camera pose\n");
-
 		for (int pt_id = 1; pt_id <= n_map_pts; ++pt_id){
-
 			if (!map_points[pt_id - 1] || map_points[pt_id - 1]->isBad()) {
 				//printf("Point %d is bad\n", pt_id);
 				continue;
@@ -329,23 +254,14 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 				continue;
 			}
 			geometry_msgs::Pose curr_pt;
-			//printf("wp size: %d, %d\n", wp.rows, wp.cols);
-			//pcl_cloud->push_back(pcl::PointXYZ(wp.at<float>(0), wp.at<float>(1), wp.at<float>(2)));
+
 			curr_pt.position.x = wp.at<float>(0);
 			curr_pt.position.y = wp.at<float>(1);
 			curr_pt.position.z = wp.at<float>(2);
 			pt_array.poses.push_back(curr_pt);
 			//printf("Done getting map point %d\n", pt_id);
 		}
-		//sensor_msgs::PointCloud2 ros_cloud;
-		//pcl::toROSMsg(*pcl_cloud, ros_cloud);
-		//ros_cloud.header.frame_id = "1";
-		//ros_cloud.header.seq = ni;
 
-		//printf("valid map pts: %lu\n", pt_array.poses.size()-1);
-
-		//printf("ros_cloud size: %d x %d\n", ros_cloud.height, ros_cloud.width);
-		//pub_cloud.publish(ros_cloud);
 		pt_array.header.frame_id = "map";
 		pt_array.header.seq = frame_id + 1;
 		pub_pts_and_pose.publish(pt_array);
@@ -359,27 +275,22 @@ void publish(ORB_SLAM2::System &SLAM, 	ros::Publisher &pub_pts_and_pose,
 		pose_with_c_and_s.pose.pose.position.x = camera_pose.position.x;
 		pose_with_c_and_s.pose.pose.position.z = 0;//- camera_pose.position.y;
 
-
 		pose_with_c_and_s.pose.pose.orientation.y = camera_pose.orientation.z;
 		pose_with_c_and_s.pose.pose.orientation.x = camera_pose.orientation.x;
 		pose_with_c_and_s.pose.pose.orientation.z = camera_pose.orientation.y;
 		pose_with_c_and_s.pose.pose.orientation.w = camera_pose.orientation.w;
 
-
-
 		for (int i = 0; i < 36; i++)
 			pose_with_c_and_s.pose.covariance[i] = 0.0;
 
-		pub_pose.publish(pose_with_c_and_s);
+		// pub_pose.publish(pose_with_c_and_s);
 	}
 }
 
 inline bool isInteger(const std::string & s){
 	if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
-
 	char * p;
 	strtol(s.c_str(), &p, 10);
-
 	return (*p == 0);
 }
 
@@ -422,10 +333,53 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg){
 		ROS_ERROR("cv_bridge exception: %s", e.what());
 		return;
 	}
-	SLAM.TrackMonocular(cv_ptr->image, cv_ptr->header.stamp.toSec());
+	cv::Mat mTcw = SLAM.TrackMonocular(cv_ptr->image, cv_ptr->header.stamp.toSec());
+	// cout << "SLAM TrackMonocular size is " << mTcw.size() << endl;
+	if (mTcw.size().width == 4 &&  mTcw.size().height == 4)
+	{
+		cv::Mat mRcw = mTcw.rowRange(0,3).colRange(0,3);
+		cv::Mat mRwc = mRcw.t();
+		cv::Mat mtcw = mTcw.rowRange(0,3).col(3);
+		cv::Mat twc = -mRcw.t()*mtcw;
 
-	// cv_ptr->header : PoseWithCovarianceStamped needed
-	
+		vector<float> q = ORB_SLAM2::Converter::toQuaternion(mRwc);
+		geometry_msgs::Pose camera_pose;
+		camera_pose.position.x = twc.at<float>(0);
+		camera_pose.position.y = twc.at<float>(1);
+		camera_pose.position.z = twc.at<float>(2);
+
+		camera_pose.orientation.x = q[0];
+		camera_pose.orientation.y = q[1];
+		camera_pose.orientation.z = q[2];
+		camera_pose.orientation.w = q[3];
+
+		geometry_msgs::PoseWithCovarianceStamped pose_with_c_and_s;
+
+		pose_with_c_and_s.header.seq = frame_id + 1;
+		pose_with_c_and_s.header.frame_id = "map";
+
+		// pose_with_c_and_s.pose.pose = camera_pose;
+		// convert orb-slam coordination to Rviz coordination
+		pose_with_c_and_s.pose.pose.position.y = camera_pose.position.z;
+		pose_with_c_and_s.pose.pose.position.x = camera_pose.position.x;
+		pose_with_c_and_s.pose.pose.position.z = 0;//- camera_pose.position.y;
+		pose_with_c_and_s.pose.pose.orientation.y = camera_pose.orientation.z;
+		pose_with_c_and_s.pose.pose.orientation.x = camera_pose.orientation.x;
+		pose_with_c_and_s.pose.pose.orientation.z = camera_pose.orientation.y;
+		pose_with_c_and_s.pose.pose.orientation.w = camera_pose.orientation.w;
+
+		for (int i = 0; i < 36; i++)
+			pose_with_c_and_s.pose.covariance[i] = 0.0;
+
+		// cv_ptr->header : PoseWithCovarianceStamped needed
+		publish_counter ++;
+		if (publish_counter == 5){
+			pub_pose.publish(pose_with_c_and_s);
+			publish_counter = 0;
+		}
+	}
+
+
 	publish(SLAM, pub_pts_and_pose, pub_all_kf_and_pts, pub_pose, frame_id);
 	++frame_id;
 }
@@ -440,17 +394,7 @@ bool parseParams(int argc, char **argv) {
 	if (isInteger(std::string(argv[3]))) {
 		int camera_id = atoi(argv[3]);
 		if (camera_id >= 0){ // from live cam
-			read_from_camera = true;
-			printf("Reading images from camera with id %d\n", camera_id);
-			cap_obj.open(camera_id);
-			if (!(cap_obj.isOpened())) {
-				printf("Camera stream could not be initialized successfully\n");
-				ros::shutdown();
-				return 0;
-			}
-			int img_height = cap_obj.get(CV_CAP_PROP_FRAME_HEIGHT);
-			int img_width = cap_obj.get(CV_CAP_PROP_FRAME_WIDTH);
-			printf("Images are of size: %d x %d\n", img_width, img_height);
+			cout << "please read from ROS topic" << endl;
 		}
 		else { // from ROS topic
 			read_from_topic = true;
@@ -458,17 +402,14 @@ bool parseParams(int argc, char **argv) {
 				image_topic = std::string(argv[4]); //argv[4] is topic name
 			}
 			printf("Reading images from topic %s\n", image_topic.c_str());
+		}
 
 	}
-	else { // from disk
-		LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
-	}
-
 
 	if (argc >= 5) {
-		all_pts_pub_gap = atoi(argv[4]); // ???????????
+		all_pts_pub_gap = atoi(argv[4]); // = 0
 	}
-	printf("all_pts_pub_gap: %d\n", all_pts_pub_gap); // 0 ?????????????
+	printf("all_pts_pub_gap: %d\n", all_pts_pub_gap); // 0
 	return 1;
 }
 

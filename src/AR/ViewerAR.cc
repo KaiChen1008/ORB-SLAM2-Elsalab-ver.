@@ -131,7 +131,7 @@ void ViewerAR::Run()
         GetImagePose(im,Tcw,status,vKeys,vMPs);
 
         // Add text to image
-        PrintStatus(status,bLocalizationMode,im);
+        // PrintStatus(status,bLocalizationMode,im);
 
         if(menu_drawpoints)
             DrawTrackedPoints(vKeys,vMPs,im);
@@ -152,7 +152,7 @@ void ViewerAR::Run()
         LoadCameraPose(Tcw);
 
         // Draw virtual things
-        if(status==2)
+        if(status==2) // OK
         {
             if(menu_clear)
             {

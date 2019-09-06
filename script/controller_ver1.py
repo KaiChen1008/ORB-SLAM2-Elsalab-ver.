@@ -26,9 +26,6 @@ class controller():
         if (self.goal is False):
             j = self.msgs2json(t)
             self.sendman.send(j)
-            self.sendman.send(j)
-            self.sendman.send(j)
-            self.sendman.send(j)
 
     def is_goal(self, data):
         if data.data == True:
@@ -36,7 +33,7 @@ class controller():
             self.sendman.send(j)
             self.goal = True
             print('achieve')
-
+            exit(0)
             # continue
             ans = raw_input("if next goal exists:")
             if ans == 'y' or ans =='yes' or ans == 'Y':
@@ -58,7 +55,7 @@ class controller():
     
     def msgs2json(self, t):
         j = {
-            'linear_x' : 0.1,
+            'linear_x' : t.linear.x,
             'linear_y' : t.linear.y,
             'linear_z' : t.linear.z,
             'angular_x': t.angular.x,
