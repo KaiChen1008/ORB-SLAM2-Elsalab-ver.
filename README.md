@@ -1,6 +1,7 @@
-# ORB_SLAM2_elsalab_ver
+# 🗺 ORB SLAM2 Elsalab ver.
 
-A modification of ORB SLAM2 with map reloading and grid-map generating.
+🚘📡🕹 A modification of ORB SLAM2 with map reloading and grid-map generating.
+
 
 # License
 
